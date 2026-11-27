@@ -29,22 +29,24 @@ git push -u origin main
 
 1. Sign up at **https://www.alwaysdata.com** — the free plan includes 100 MB, one PostgreSQL database and no credit card.
 2. In the panel, go to **Databases → PostgreSQL → Add a database**:
-   - Name: `bunker`
+   - Name: `bunker` (the real DB name becomes `<account>_bunker`, e.g. `ben_bunker`)
    - Leave the default PostgreSQL version.
-3. Still in **Databases → PostgreSQL**, note or create your **database user** (on Alwaysdata the user is your account name by default, e.g. `youraccount`).
-4. Go to **Remote access** and add the host **`*.render.com`** (Render connects from anywhere; if the panel asks for exact IPs, keep `%` / all hosts — Alwaysdata free allows it).
+3. Still in **Databases → PostgreSQL**, note or create your **database user** (on Alwaysdata the user is your account name by default, e.g. `ben`).
+4. **No whitelist needed**: Alwaysdata database ports are open to the Internet by default (only the Max offer can close them), and SSL is supported.
 
-Your connection string has the form:
+Your connection string has the form — the host is `postgresql-<account>.alwaysdata.net`:
 
 ```
-postgres://<user>:<password>@postgresql-<n>.alwaysdata.net:<port>/<account>_bunker
+postgres://<user>:<password>@postgresql-<account>.alwaysdata.net:5432/<account>_bunker
 ```
 
-You can find the exact host, port and database name on the database detail page. Test it locally once (optional):
+⚠️ Common mistake: `<account>.pg.alwaysdata.net` does **not** exist (DNS `ENOTFOUND`). Always copy the **Host** value shown in the panel: Databases → PostgreSQL → your database.
+
+Test it locally once (optional):
 
 ```bash
 DB_DRIVER=postgres \
-DATABASE_URL="postgres://user:pass@postgresql-1.alwaysdata.net:5432/account_bunker" \
+DATABASE_URL="postgres://user:pass@postgresql-account.alwaysdata.net:5432/account_bunker" \
 node server/index.js
 # → [db] PostgreSQL connecté + [seed] Base prête.
 ```
@@ -73,7 +75,7 @@ Tables, indexes and default content are created automatically on first boot — 
 
 | Key | Value | Notes |
 |---|---|---|
-| `DATABASE_URL` | `postgres://user:pass@postgresql-1.alwaysdata.net:5432/account_bunker` | from step 1 |
+| `DATABASE_URL` | `postgres://user:pass@postgresql-account.alwaysdata.net:5432/account_bunker` | host format: `postgresql-<account>.alwaysdata.net` |
 | `DB_DRIVER` | `postgres` | optional; auto-detected from the URL anyway |
 | `DB_SSL` | `true` | Alwaysdata supports TLS; harmless if unavailable |
 | `SESSION_SECRET` | a long random string (e.g. `openssl rand -hex 32`) | cookie signing |
@@ -115,8 +117,10 @@ Render auto-redeploys on push. Database schema changes: `server/db/schema.js` ru
 
 | Symptom | Cause / fix |
 |---|---|
-| `[db] PostgreSQL connecté` absent from logs | Bad `DATABASE_URL` — check host/port/password; verify remote access allows Render. |
+| `getaddrinfo ENOTFOUND <host>` at boot | The hostname does not exist. Alwaysdata format is `postgresql-<account>.alwaysdata.net` — **not** `<account>.pg.alwaysdata.net`. Copy the exact Host from the panel (Databases → PostgreSQL) and redeploy. |
+| `[db] PostgreSQL connecté` absent from logs | Bad `DATABASE_URL` — check host/port/password. |
 | `password authentication failed` | Reset the DB user password in Alwaysdata → Databases → users. |
+| `database "xxx" does not exist` | The DB name must be the full panel name, e.g. `ben_bunker` (Alwaysdata prefixes with your account). |
 | Game stuck on "Recherche de partie…" | The WS may have dropped during a wake-up; reload the page. If it persists, check the Render logs for `ws` errors. |
 | Admin tab missing | The first-ever registered account is admin. Later accounts are not. Fix in DB: `UPDATE users SET is_admin = 1 WHERE uname = 'you';` |
 | Sessions logged out after each deploy | `SESSION_SECRET` changed or unset (random fallback) — set it permanently in Render env vars. |
