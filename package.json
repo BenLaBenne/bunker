@@ -1,0 +1,24 @@
+{
+  "name": "bunker",
+  "version": "1.0.0",
+  "description": "BUNKER — jeu survival multijoueur 2D isométrique en PWA (JavaScript natif, serveur autoritaire WebSocket)",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node scripts/test_e2e.js",
+    "icons": "python3 scripts/icons.py",
+    "validate:map": "node scripts/validate_map.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "pg": "^8.13.1",
+    "ws": "^8.18.0"
+  },
+  "license": "MIT"
+}
