@@ -6,7 +6,7 @@ import { requireAdmin } from '../auth.js';
 import { now, cleanStr, safeJsonParse, decodeDataUrl, imageDims } from '../util.js';
 import { syncMapRows } from '../db/seed.js';
 
-export function adminRoutes(notifier, gameServer) {
+export function adminRoutes(notifier, gameServer, gameConfig) {
   const r = Router();
   r.use(requireAdmin); // ← contrôle serveur sur CHAQUE route
 
@@ -169,6 +169,8 @@ export function adminRoutes(notifier, gameServer) {
       else if (typeof old[key] === 'boolean') value = !!raw;
       else if (typeof old[key] === 'string') value = String(raw).slice(0, 40);
       await db.query('UPDATE game_config SET value = ? WHERE key = ?', [JSON.stringify(value), key]);
+      // Application à chaud : la partie en cours / les prochaines salles lisent cet objet
+      if (gameConfig && key in gameConfig) gameConfig[key] = value;
     }
     await log(req, 'config_update', 'game_config', 'multiple', old, body);
     res.json({ ok: true });

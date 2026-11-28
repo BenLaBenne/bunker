@@ -6,6 +6,30 @@ function table(dialect, name, sqliteCols, pgCols, extra = '') {
   return `CREATE TABLE IF NOT EXISTS ${name} (${cols})${extra};`;
 }
 
+// Colonnes JSON stockées en TEXT (JSON.stringify à l'écriture, JSON.parse à la
+// lecture) — mêmes sémantiques que SQLite. Si un déploiement antérieur les a
+// créées en JSONB, elles sont repassées en TEXT au démarrage (sans perte).
+const JSON_TEXT_COLUMNS = [
+  ['users', 'settings'], ['shop_items', 'payload'], ['matches', 'winners'],
+  ['matches', 'config'], ['gifts', 'targets'], ['admin_logs', 'old_value'],
+  ['admin_logs', 'new_value'], ['game_config', 'value'], ['sounds', 'params']
+];
+
+/** Migration PostgreSQL : jsonb → text pour les colonnes du tableau ci-dessus. */
+export async function migrateJsonColumns(db) {
+  if (db.dialect !== 'postgres') return;
+  const rows = await db.query(
+    `SELECT table_name, column_name FROM information_schema.columns
+     WHERE table_schema = 'public' AND data_type = 'jsonb'`);
+  const ours = new Set(JSON_TEXT_COLUMNS.map(([t, c]) => `${t}.${c}`));
+  for (const r of rows) {
+    const key = `${r.table_name}.${r.column_name}`;
+    if (!ours.has(key)) continue;
+    console.log(`[db] migration jsonb→text : ${key}`);
+    await db.exec(`ALTER TABLE ${r.table_name} ALTER COLUMN ${r.column_name} TYPE TEXT USING ${r.column_name}::text`);
+  }
+}
+
 export function schemaStatements(dialect) {
   const S = [];
   const T = (name, sqliteCols, pgCols) => S.push(table(dialect, name, sqliteCols, pgCols));
@@ -28,7 +52,7 @@ export function schemaStatements(dialect) {
      deaths INTEGER DEFAULT 0, tasks_done INTEGER DEFAULT 0, matches INTEGER DEFAULT 0,
      coins INTEGER DEFAULT 500, cores INTEGER DEFAULT 10,
      selected_fighter VARCHAR(32) DEFAULT 'rust', selected_skin TEXT DEFAULT '',
-     settings JSONB DEFAULT '{}', lang VARCHAR(4) DEFAULT 'fr'`);
+     settings TEXT DEFAULT '{}', lang VARCHAR(4) DEFAULT 'fr'`);
 
   T('sessions',
     `id TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT, expires_at TEXT`,
@@ -88,7 +112,7 @@ export function schemaStatements(dialect) {
     `id VARCHAR(32) PRIMARY KEY, name TEXT, name_en TEXT, description TEXT, description_en TEXT,
      category VARCHAR(16) DEFAULT 'skins', rarity VARCHAR(12) DEFAULT 'commun', price INTEGER DEFAULT 100,
      currency VARCHAR(8) DEFAULT 'coins', available SMALLINT DEFAULT 1, image INTEGER,
-     payload JSONB DEFAULT '{}', created_at TIMESTAMPTZ`);
+     payload TEXT DEFAULT '{}', created_at TIMESTAMPTZ`);
 
   T('inventory',
     `user_id INTEGER, item_type TEXT, item_id TEXT, qty INTEGER DEFAULT 1, acquired_at TEXT,
@@ -132,7 +156,7 @@ export function schemaStatements(dialect) {
     `id INTEGER PRIMARY KEY AUTOINCREMENT, map_id TEXT, mode TEXT DEFAULT 'survival',
      started_at TEXT, ended_at TEXT, winner_type TEXT, winners TEXT, config TEXT`,
     `id SERIAL PRIMARY KEY, map_id VARCHAR(32), mode VARCHAR(12) DEFAULT 'survival',
-     started_at TIMESTAMPTZ, ended_at TIMESTAMPTZ, winner_type VARCHAR(12), winners JSONB, config JSONB`);
+     started_at TIMESTAMPTZ, ended_at TIMESTAMPTZ, winner_type VARCHAR(12), winners TEXT, config TEXT`);
 
   T('match_players',
     `match_id INTEGER, user_id INTEGER, uname TEXT, fighter_id TEXT, is_bot INTEGER DEFAULT 0,
@@ -196,7 +220,7 @@ export function schemaStatements(dialect) {
      expires_at TEXT, max_claims INTEGER DEFAULT 0, claimed INTEGER DEFAULT 0,
      created_by INTEGER, created_at TEXT`,
     `id SERIAL PRIMARY KEY, title TEXT, message TEXT, reward_type VARCHAR(16),
-     reward_id VARCHAR(64) DEFAULT '', qty INTEGER DEFAULT 1, targets JSONB DEFAULT 'all',
+     reward_id VARCHAR(64) DEFAULT '', qty INTEGER DEFAULT 1, targets TEXT DEFAULT 'all',
      expires_at TIMESTAMPTZ, max_claims INTEGER DEFAULT 0, claimed INTEGER DEFAULT 0,
      created_by INTEGER, created_at TIMESTAMPTZ`);
 
@@ -208,17 +232,17 @@ export function schemaStatements(dialect) {
     `id INTEGER PRIMARY KEY AUTOINCREMENT, admin_id INTEGER, admin_uname TEXT, action TEXT,
      target_type TEXT, target_id TEXT, old_value TEXT, new_value TEXT, created_at TEXT`,
     `id SERIAL PRIMARY KEY, admin_id INTEGER, admin_uname VARCHAR(16), action VARCHAR(40),
-     target_type VARCHAR(24), target_id VARCHAR(64), old_value JSONB, new_value JSONB, created_at TIMESTAMPTZ`);
+     target_type VARCHAR(24), target_id VARCHAR(64), old_value TEXT, new_value TEXT, created_at TIMESTAMPTZ`);
 
   T('game_config',
     `key TEXT PRIMARY KEY, value TEXT`,
-    `key VARCHAR(40) PRIMARY KEY, value JSONB`);
+    `key VARCHAR(40) PRIMARY KEY, value TEXT`);
 
   T('sounds',
     `id TEXT PRIMARY KEY, name TEXT, mode TEXT DEFAULT 'synth', file BLOB, mime TEXT,
      params TEXT DEFAULT '{}', updated_at TEXT`,
     `id VARCHAR(32) PRIMARY KEY, name TEXT, mode VARCHAR(6) DEFAULT 'synth', file BYTEA, mime VARCHAR(40),
-     params JSONB DEFAULT '{}', updated_at TIMESTAMPTZ`);
+     params TEXT DEFAULT '{}', updated_at TIMESTAMPTZ`);
 
   // Index pour les classements et recherches
   const IX = [

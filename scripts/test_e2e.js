@@ -92,6 +92,12 @@ async function main() {
   check('clan listé', clans.data.clans?.some(c => c.name.startsWith('TestClan')));
 
   console.log('== 7. Partie WebSocket (1 humain + bots) ==');
+  // Accélère la partie via la config admin (appliquée à chaud) : sans cela, une
+  // partie où les bots ne se rencontrent pas peut durer ~7 min (réparation+radiation).
+  const cfgSet = await req(jar1, 'PUT', '/api/admin/config', {
+    config: { lobbyCountdownS: 2, repairTimeS: 25, radiationAlertS: 3, radiationGraceS: 10, evacTimeS: 20 }
+  });
+  check('config appliquée à chaud', cfgSet.status === 200);
   const match = await runMatch(jar1, U1);
   check('init reçu (map 3 étages)', match.gotInit && match.mapFloors === 3);
   check('bots remplissent à 10', match.rosterSize === 10, `roster=${match.rosterSize}`);

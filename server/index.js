@@ -5,7 +5,7 @@ import http from 'node:http';
 import path from 'node:path';
 import { env, ROOT } from './env.js';
 import { createDb } from './db/index.js';
-import { schemaStatements } from './db/schema.js';
+import { schemaStatements, migrateJsonColumns } from './db/schema.js';
 import { seed, loadGameConfig } from './db/seed.js';
 import { attachUser } from './auth.js';
 import { apiRoutes } from './routes/api.js';
@@ -19,10 +19,11 @@ async function main() {
   console.log(`[bunker] démarrage (env=${env.NODE_ENV}, db=${env.DB_DRIVER})`);
   const db = await createDb();
 
-  // Schéma + seed idempotent
+  // Schéma + migration + seed (idempotents)
   for (const stmt of schemaStatements(db.dialect)) {
     await db.exec(stmt);
   }
+  await migrateJsonColumns(db);
   await seed();
   const gameConfig = await loadGameConfig();
 
@@ -52,7 +53,7 @@ async function main() {
   // API
   app.use('/api', apiRoutes(notifier));
   app.use('/api', metaRoutes(notifier));
-  app.use('/api/admin', adminRoutes(notifier, gameServer));
+  app.use('/api/admin', adminRoutes(notifier, gameServer, gameConfig));
   app.use('/api', (_req, res) => res.status(404).json({ error: 'NOT_FOUND' }));
 
   // Page unique

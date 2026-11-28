@@ -118,11 +118,13 @@ Render auto-redeploys on push. Database schema changes: `server/db/schema.js` ru
 | Symptom | Cause / fix |
 |---|---|
 | `getaddrinfo ENOTFOUND <host>` at boot | The hostname does not exist. Alwaysdata format is `postgresql-<account>.alwaysdata.net` — **not** `<account>.pg.alwaysdata.net`. Copy the exact Host from the panel (Databases → PostgreSQL) and redeploy. |
+| `invalid input syntax for type json` / `Token "all" is invalid` at boot | Fixed in the current code (JSON columns use TEXT, and a startup migration converts any JSONB leftovers — data preserved). Pull the latest code and redeploy. |
 | `[db] PostgreSQL connecté` absent from logs | Bad `DATABASE_URL` — check host/port/password. |
 | `password authentication failed` | Reset the DB user password in Alwaysdata → Databases → users. |
 | `database "xxx" does not exist` | The DB name must be the full panel name, e.g. `ben_bunker` (Alwaysdata prefixes with your account). |
 | Game stuck on "Recherche de partie…" | The WS may have dropped during a wake-up; reload the page. If it persists, check the Render logs for `ws` errors. |
 | Admin tab missing | The first-ever registered account is admin. Later accounts are not. Fix in DB: `UPDATE users SET is_admin = 1 WHERE uname = 'you';` |
+| Admin config changes seem ignored | Fixed in current code (hot-reload of game config). Pull latest code; otherwise restart the service after saving. |
 | Sessions logged out after each deploy | `SESSION_SECRET` changed or unset (random fallback) — set it permanently in Render env vars. |
 | 502 on `/api/meta` | Instance still waking (free plan). Retry after ~60 s. |
 
