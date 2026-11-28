@@ -50,6 +50,8 @@ function clearRoot() {
 }
 
 async function startGame(opts = {}) {
+  // une seule scène de jeu à la fois : on détruit l'ancienne (contexte WebGL libéré)
+  if (gameScene) { gameScene.destroy(); gameScene = null; }
   clearRoot();
   gameScene = new GameScene(appRoot, net, {
     mapId: state.currentMapId,

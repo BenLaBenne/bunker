@@ -25,6 +25,10 @@ export class Controls {
     this.joyBase = h('div', { class: 'joystick-base' });
     this.joyKnob = h('div', { class: 'joystick-knob' });
     this.joyZone.append(this.joyBase, this.joyKnob);
+    // position de repos : bas-gauche (style Brawl Stars), avant tout toucher
+    const restY = () => window.innerHeight - 180;
+    this.positionJoy(this.joyBase, 64, restY());
+    this.positionJoy(this.joyKnob, 93, restY() + 29);
 
     const startJoy = (e) => {
       const touch = e.changedTouches ? e.changedTouches[0] : e;

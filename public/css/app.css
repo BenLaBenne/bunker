@@ -183,7 +183,7 @@ table.tbl tr:hover td { background: rgba(127,255,106,.04); }
 .auth-tabs button.active { color: var(--green); border-color: var(--green-dim); background: rgba(127,255,106,.06); }
 
 /* ---------- Scène de jeu ---------- */
-#game-scene { background: #050705; }
+#game-scene { background: #140e0a; }
 #pixi-holder { position: absolute; inset: 0; }
 #pixi-holder canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 
@@ -201,7 +201,7 @@ table.tbl tr:hover td { background: rgba(127,255,106,.04); }
 .progressbar { width: 150px; height: 10px; background: #0d130f; border-radius: 5px; overflow: hidden; border: 1px solid var(--line); }
 .progressbar > div { height: 100%; background: linear-gradient(90deg, #2c5a26, var(--green)); transition: width .3s; }
 .hud-progress-label { font-size: 11px; color: var(--muted); }
-.alive-chip { font-weight: 700; color: var(--text); }
+.alive-chip { font-size: 14px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.8); }
 
 .hud-left {
   position: absolute; top: 6px; left: 8px; display: flex; flex-direction: column; gap: 5px;
@@ -237,13 +237,13 @@ table.tbl tr:hover td { background: rgba(127,255,106,.04); }
 .joystick-zone { position: absolute; left: 0; bottom: 0; width: 45%; height: 62%; pointer-events: auto; }
 .joystick-base {
   position: absolute; width: 110px; height: 110px; border-radius: 50%;
-  background: rgba(127,255,106,.06); border: 2px solid rgba(127,255,106,.25);
-  pointer-events: none; opacity: 0; transition: opacity .15s;
+  background: rgba(255,255,255,.07); border: 2px solid rgba(255,255,255,.3);
+  pointer-events: none; opacity: .4; transition: opacity .15s;
 }
 .joystick-knob {
   position: absolute; width: 52px; height: 52px; border-radius: 50%;
-  background: rgba(127,255,106,.35); border: 2px solid rgba(127,255,106,.7);
-  pointer-events: none; opacity: 0; transition: opacity .15s;
+  background: rgba(255,255,255,.35); border: 2px solid rgba(255,255,255,.7);
+  pointer-events: none; opacity: .4; transition: opacity .15s;
 }
 .joystick-zone.active .joystick-base, .joystick-zone.active .joystick-knob { opacity: 1; }
 

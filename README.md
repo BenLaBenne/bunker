@@ -1,6 +1,6 @@
 # ☣ BUNKER
 
-**BUNKER** is a 2D isometric multiplayer survival game delivered as a PWA. 10 players (or bots) are locked in a nuclear bunker spread over 3 floors: repair the shared machines before the radiation kills everyone, eliminate the others for armor, or hold out until the end — only the survivors in the extraction zone win.
+**BUNKER** is a 2D top-down multiplayer survival game (Brawl Stars-style view) delivered as a PWA. 10 players (or bots) are locked in a nuclear bunker spread over 3 floors: repair the shared machines before the radiation kills everyone, eliminate the others for armor, or hold out until the end — only the survivors in the extraction zone win.
 
 Pure vanilla JavaScript (ES modules, zero build step) on both client and server.
 

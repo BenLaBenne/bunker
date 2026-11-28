@@ -8,7 +8,7 @@ export const state = {
   meta: null,          // fighters, maps, shop, quests, pass, sounds, config
   inventory: null,
   keybinds: null,
-  settings: { master: 1, music: 0.6, sfx: 1, zoom: 1.1 },
+  settings: { master: 1, music: 0.6, sfx: 1, zoom: 1.25 },
   currentMapId: 'bunker_a7'
 };
 

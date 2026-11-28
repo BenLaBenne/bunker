@@ -290,12 +290,22 @@ export class GameScene {
     return h('div', { class: 'tbl-wrap' }, tbl);
   }
 
-  exit() {
+  /** Détruit la scène : réseau, audio, canvas Pixi (contexte WebGL libéré). */
+  destroy() {
+    if (this.destroyed) return;
+    this.destroyed = true;
+    this.ended = true;
     this.net.leaveMatch();
     this.net.off('message');
     audio.stopAmbience();
-    this.renderer?.app?.destroy(true, { children: true });
+    this.controls?.destroy?.();
+    this.renderer?.destroy(); // retire aussi le listener resize (évite "renderer is null")
+    this.renderer = null;
     this.root.remove();
+  }
+
+  exit() {
+    this.destroy();
     this.onExit?.();
   }
 }

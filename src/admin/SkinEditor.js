@@ -16,6 +16,7 @@ const DEFAULT_PALETTE = [
 
 export class SkinEditor {
   constructor(root, skinId, fighterId, existingData, onClose) {
+    this.root = root;
     this.skinId = skinId;
     this.fighterId = fighterId;
     this.onClose = onClose;

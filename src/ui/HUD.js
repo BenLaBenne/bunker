@@ -30,7 +30,7 @@ export class HUD {
         h('div', { class: 'hud-progress-label' }, 'BUNKER'),
         h('div', { class: 'progressbar' }, this.progressFill = h('div'))
       ),
-      h('div', { class: 'alive-chip' }, '👤 ', this.alive = h('span'), '')
+      h('div', { class: 'alive-chip' }, '👤 ', this.alive = h('span'), ` ${t('alive')}`)
     );
     // ---- droite : mini-carte
     this.minimapWrap = h('div', { class: 'hud-minimap' });
@@ -116,20 +116,21 @@ export class HUD {
     const ctx = this.minimapCtx || (this.minimapCtx = this.minimapCanvas.getContext('2d'));
     const w = this.minimapCanvas.width, hgt = this.minimapCanvas.height;
     const sx = w / map.w, sy = hgt / map.h;
-    ctx.fillStyle = '#050705';
+    ctx.fillStyle = '#140e0a';
     ctx.fillRect(0, 0, w, hgt);
     for (let y = 0; y < map.h; y++) {
       for (let x = 0; x < map.w; x++) {
         const state = map.fogState(floor, x, y);
         if (state === 0) continue;
         const ch = map.tile(floor, x, y);
-        let color = '#26312a';
-        if (ch === '#') color = '#141a15';
-        else if (ch === 'h') color = '#4a4438';
-        else if (ch === 'e') color = '#1f4a2a';
-        else if (ch === 'g') color = '#2e3739';
-        else if (ch === 'p') color = '#303a34';
-        if (state === 1) color = shadeHex(color, -14);
+        let color = '#a87848';
+        if (ch === '#') color = '#8a3f2b';
+        else if (ch === 'h') color = '#5a5030';
+        else if (ch === 'e') color = '#2c6a36';
+        else if (ch === 'g') color = '#b98f3c';
+        else if (ch === 'p') color = '#8a6a4a';
+        else if (ch === 'd') color = '#5a666e';
+        if (state === 1) color = shadeHex(color, -38);
         ctx.fillStyle = color;
         ctx.fillRect(x * sx, y * sy, Math.ceil(sx), Math.ceil(sy));
       }

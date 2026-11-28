@@ -7,11 +7,11 @@ import { api } from '../ui/api.js';
 import { audio } from '../audio/AudioManager.js';
 
 const TILE_TYPES = [
-  { ch: '#', label: '⬛', name: 'Mur' },
+  { ch: '#', label: '⬛', name: 'Rocher' },
   { ch: ' ', label: '🕳', name: 'Vide (roche)' },
-  { ch: '.', label: '⬜', name: 'Sol béton' },
-  { ch: 'p', label: '▦', name: 'Plaques métal' },
-  { ch: 'g', label: '▩', name: 'Caillebotis' },
+  { ch: '.', label: '🟧', name: 'Sable' },
+  { ch: 'p', label: '▦', name: 'Métal rouillé' },
+  { ch: 'g', label: '🌾', name: 'Herbe dorée' },
   { ch: 'h', label: '☢', name: 'Zone dangereuse' },
   { ch: 'd', label: '🚪', name: 'Porte' },
   { ch: 'e', label: '🟩', name: 'Évacuation' }
@@ -21,6 +21,7 @@ const TASK_TYPES = ['reactor', 'cooling', 'generator', 'filter', 'security', 'co
 
 export class MapEditor {
   constructor(root, mapId, onClose) {
+    this.root = root;
     this.mapId = mapId;
     this.onClose = onClose;
     this.tool = '#';
@@ -221,7 +222,7 @@ export class MapEditor {
     const W = this.map.data.w, H = this.map.data.h;
     this.canvas.width = W * Z + 40;
     this.canvas.height = H * Z + 40;
-    ctx.fillStyle = '#0d130f';
+    ctx.fillStyle = '#140e0a';
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     const grid = this.map.data.floors[this.floor].grid;
     for (let y = 0; y < H; y++) {
@@ -229,7 +230,7 @@ export class MapEditor {
       for (let x = 0; x < W; x++) {
         const ch = row[x] ?? ' ';
         const cx = 20 + x * Z, cy = 20 + y * Z;
-        const colors = { '#': '#1c241e', ' ': '#050705', '.': '#2b332c', 'p': '#313a34', 'g': '#2e3739', 'h': '#5a5030', 'd': '#3a4448', 'e': '#1f4a2a' };
+        const colors = { '#': '#8a3f2b', ' ': '#140e0a', '.': '#c98e57', 'p': '#9c6b4f', 'g': '#b98f3c', 'h': '#5a5030', 'd': '#5a666e', 'e': '#2c6a36' };
         ctx.fillStyle = colors[ch] || '#2b332c';
         ctx.fillRect(cx, cy, Z - 1, Z - 1);
         if (ch === 'h') {

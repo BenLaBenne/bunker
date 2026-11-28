@@ -5,9 +5,15 @@ import { h, clear } from './dom.js';
 import { t } from './i18n.js';
 
 const TILE_COLORS = {
-  '#': '#141a15', ' ': '#050705', '.': '#2b332c', 'p': '#313a34', 'g': '#2e3739',
-  'h': '#4a4438', 'd': '#31363a', 'e': '#1f4a2a'
+  '#': '#8a3f2b', ' ': '#140e0a', '.': '#c98e57', 'p': '#9c6b4f', 'g': '#b98f3c',
+  'h': '#5a5030', 'd': '#5a666e', 'e': '#2c6a36'
 };
+
+function dimHex(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.round(((n >> 16) & 255) * 0.42), g = Math.round(((n >> 8) & 255) * 0.42), b = Math.round((n & 255) * 0.42);
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
 
 export class TaskMap {
   constructor(root, callbacks) {
@@ -82,7 +88,7 @@ export class TaskMap {
     const ctx = this.canvas.getContext('2d');
     const W = this.canvas.width, H = this.canvas.height;
     const sx = W / map.w, sy = H / map.h;
-    ctx.fillStyle = '#050705';
+    ctx.fillStyle = '#140e0a';
     ctx.fillRect(0, 0, W, H);
     const fog = map.fog;
     for (let y = 0; y < map.h; y++) {
@@ -90,8 +96,8 @@ export class TaskMap {
         const state = fog[this.floor]?.[y]?.[x] ?? 0;
         if (state === 0) continue;
         const ch = map.tile(this.floor, x, y);
-        let color = TILE_COLORS[ch] || '#2b332c';
-        if (state === 1) color = '#1a201b';
+        let color = TILE_COLORS[ch] || '#c98e57';
+        if (state === 1) color = dimHex(color);
         ctx.fillStyle = color;
         ctx.fillRect(x * sx, y * sy, Math.ceil(sx), Math.ceil(sy));
         // escaliers

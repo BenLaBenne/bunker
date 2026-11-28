@@ -16,6 +16,7 @@ export function h(tag, attrs = {}, ...children) {
 }
 
 export function clear(el) {
+  if (!el) return el; // garde-fou : conteneur absent → ne rien faire
   while (el.firstChild) el.removeChild(el.firstChild);
   return el;
 }
